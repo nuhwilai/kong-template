@@ -1,15 +1,8 @@
 version: '2.2'
 
-volumes:
-  kong_data: {}
-  konga_data: {}
-
-networks:
-  kong_network:
-    external: false
-
 services:
   kong:
+    container_name: kong
     build:
       context: .
     user: ${KONG_USER:-root}
@@ -38,6 +31,7 @@ services:
       timeout: 10s
       retries: 5
   postgres:
+    container_name: kong-postgres
     image: postgres:12.1
     environment:
       POSTGRES_DB: ${KONG_PG_DATABASE:-kong}
@@ -55,6 +49,7 @@ services:
     volumes:
       - kong_data:/var/lib/postgres/data
   mongo:
+    container_name: kong-mongo
     image: mongo:4.2.2-bionic
     ports: 
       - 27018:27017
@@ -68,6 +63,7 @@ services:
     volumes:
       - konga_data:/data/db
   konga:
+    container_name: konga
     image: pantsel/konga:latest
     ports:
       - 1337:1337
@@ -82,3 +78,11 @@ services:
     volumes:
       - ./kus.js:/kus.js:ro
     restart: on-failure
+
+volumes:
+  kong_data: {}
+  konga_data: {}
+
+networks:
+  kong_network:
+    external: true
